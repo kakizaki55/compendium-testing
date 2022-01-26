@@ -3,7 +3,7 @@ import './NasaCard.css';
 
 export default function NasaCard({ nasaData }) {
   return (
-    <div className="nasa-list">
+    <div className="nasa-list" aria-label="nasa-list">
       {nasaData.map((item) => (
         <>
           <div className="nasa-card">
