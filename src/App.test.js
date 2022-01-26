@@ -1,4 +1,4 @@
-import { render, screen, waitForElementToBeRemoved } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import App from './App';
 
 test('App has a loading state', async () => {
@@ -16,4 +16,7 @@ test('App has a loading state', async () => {
 
 test('making sure it renders out 20 picures on page load in search inputs show up', async () => {
   render(<App />);
+  const cardList = await window.document.getElementById('nasa-list');
+  });
+  expect(cardList.children.length).toEqual(20);
 });
