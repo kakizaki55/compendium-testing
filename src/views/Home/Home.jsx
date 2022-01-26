@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import NasaCard from '../../components/NasaCard/NasaCard';
-import { getPictureOfTheDay } from '../../services/fetchdata';
+import { getPictureBySearch, getPictureOfTheDay } from '../../services/fetchdata';
 import Controls from '../../components/Controls/Controls';
 
 export default function Home() {
@@ -12,12 +12,26 @@ export default function Home() {
 
   useEffect(() => {
     const fetchdata = async () => {
-      const resp = await getPictureOfTheDay();
-      setNasaData(resp);
+      let data;
+      if (startDate && endDate) {
+        const resp = await getPictureBySearch(startDate, endDate);
+        data = resp;
+      } else {
+        const resp = await getPictureOfTheDay();
+        data = resp;
+      }
+      setNasaData(data);
       setLoading(false);
     };
     fetchdata();
-  }, []);
+  }, [startDate, endDate]);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setStartDate(e.target[0].value);
+    setEndDate(e.target[1].value);
+    setLoading(false);
+  };
 
   return (
     <div>
@@ -27,7 +41,11 @@ export default function Home() {
         </>
       ) : (
         <>
-          <Controls setStartDate={setStartDate} setEndDate={setEndDate}></Controls>
+          <Controls
+            setStartDate={setStartDate}
+            setEndDate={setEndDate}
+            handleSubmit={handleSubmit}
+          ></Controls>
           <NasaCard nasaData={nasaData}></NasaCard>
         </>
       )}
