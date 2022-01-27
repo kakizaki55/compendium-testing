@@ -25,6 +25,7 @@ export default function Home() {
     };
     fetchdata();
   }, [startDate, endDate]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);

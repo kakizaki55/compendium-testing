@@ -1,8 +1,11 @@
 export const getPictureOfTheDay = async () => {
+  console.log('you are in the fetch call', process.env.REACT_APP_NASA_KEY);
   const temp = await fetch(
-    `https://api.nasa.gov/planetary/apod?api_key=${process.env.REACT_APP_NASA_KEY}&count=20&`
+    `https://api.nasa.gov/planetary/apod?api_key=${process.env.REACT_APP_NASA_KEY}&count=3`
   );
+  console.log('you are in here after the fetch call');
   const response = await temp.json();
+  console.log(response);
   return response;
 };
 
