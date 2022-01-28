@@ -35,7 +35,7 @@ const server = setupServer(
 beforeAll(() => server.listen());
 afterAll(() => server.close());
 
-test('App has a loading state', async () => {
+test.skip('App has a loading state', async () => {
   render(<App />);
   const heading = screen.getByRole('heading', {
     name: /nasa photo of the day directory/i,

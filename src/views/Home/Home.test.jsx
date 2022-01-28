@@ -1,4 +1,4 @@
-import { render, screen, waitForElementToBeRemoved, waitFor } from '@testing-library/react';
+import { render, screen, waitForElementToBeRemoved, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { rest } from 'msw';
@@ -10,7 +10,7 @@ const data = [
   {
     date: '1999-01-01',
     explanation:
-      'SO202-G23 is a colorful mess.  It is a collision between two galaxies taking place over hundreds of millions of years.  The representative colors give astronomers some idea of what is going on. Visible in this jumble is an  active nucleus spewing ultraviolet radiation which lights up surrounding gas (blue); galactic arms contorted by the gravity of the collision (green); a star forming complex left of center (blue); and dust (red).  In billions of years this mess might settle into a relatively normal looking galaxy.',
+      'asldkjfaiweufawiefbaweiugfaweibf npm testSO202-G23 is a colorful mess.  It is a collision between two galaxies taking place over hundreds of millions of years.  The representative colors give astronomers some idea of what is going on. Visible in this jumble is an  active nucleus spewing ultraviolet radiation which lights up surrounding gas (blue); galactic arms contorted by the gravity of the collision (green); a star forming complex left of center (blue); and dust (red).  In billions of years this mess might settle into a relatively normal looking galaxy.',
     hdurl: 'https://apod.nasa.gov/apod/image/9901/merger_vlt_big.jpg',
     media_type: 'image',
     service_version: 'v1',
@@ -31,14 +31,20 @@ const data = [
 
 const server = setupServer(
   rest.get('https://api.nasa.gov/planetary/apod', (req, res, ctx) => {
+    // const startdate = req.url.serachParams.get('start_date');
+    // const enddate = req.url.searchParams.get('end_date');
+    // if (startdate === '2021-01-01' && enddate === '2021-01-03') {
+    //   return res(ctx.json(searchData));
+    // } else {
     return res(ctx.json(data));
+    // }
   })
 );
 
 beforeAll(() => server.listen());
 afterAll(() => server.close());
-
-test.skip('doing test to see if the data coming back actually renders picture cards and search boxes', async () => {
+jest.setTimeout(10000);
+test('doing test to see if the data coming back actually renders picture cards and search boxes', async () => {
   render(<App />);
 
   await waitForElementToBeRemoved(() => screen.getByText(/loading/i));
@@ -95,16 +101,21 @@ const searchData = [
     url: 'https://apod.nasa.gov/apod/image/2101/PhoenixAurora_Helgason_960.jpg',
   },
 ];
-
-test('making sure the correct Api comes back when using the search feature', async () => {
+test('making sure the correct Api response comes back when using the search feature', async () => {
   server.use(
-    rest.get(
-      `https://api.nasa.gov/planetary/apod?api_key=${process.env.REACT_APP_NASA_KEY}&start_date=2021-01-01&end_date=2021-01-03`
-    ),
-    (req, res, ctx) => {
-      return res(ctx.json(searchData));
-    }
+    rest.get('https://api.nasa.gov/planetary/apod', (req, res, ctx) => {
+      const params = req.url.searchParams.get('start_date');
+      const params2 = req.url.searchParams.get('end_date');
+      console.log(params);
+      console.log(params2);
+      if (params && params2) {
+        return res(ctx.json(searchData));
+      } else {
+        return res(ctx.json(data));
+      }
+    })
   );
+
   render(<App />);
 
   await waitForElementToBeRemoved(() => screen.getByText(/loading../i));
@@ -113,15 +124,34 @@ test('making sure the correct Api comes back when using the search feature', asy
   const endDateBox = screen.getByLabelText(/end date:/i);
   const button = screen.getByRole('button');
 
-  userEvent.type(startDateBox, '2021-01-01');
-  userEvent.type(endDateBox, '2021-01-03');
-  userEvent.click(button);
-
-  jest.setTimeout(7000);
-  await waitFor(() => screen.getByText(/The South Celestial Pole/i), { timeout: 5000 });
+  fireEvent.change(startDateBox, { target: { value: '2021-01-01' } });
+  fireEvent.change(endDateBox, { target: { value: '2021-01-03' } });
   screen.debug();
 
+  userEvent.click(button);
+
+  jest.setTimeout(5000);
+
+  await waitForElementToBeRemoved(() => screen.getByText(/loading../i));
+
   const listOfPictures = screen.getByRole('list');
+  screen.debug();
 
   expect(listOfPictures.children.length).toEqual(3);
+});
+
+test.only('making sure the afire event is wokrin g rpoperly', async () => {
+  render(<App />);
+
+  await waitForElementToBeRemoved(() => screen.getByText(/loading../i));
+
+  const startDateBox = screen.getByLabelText(/start date:/i);
+  const endDateBox = screen.getByLabelText(/end date:/i);
+
+  fireEvent.change(startDateBox, { target: { defaultValue: '2020-05-24' } });
+  fireEvent.change(endDateBox, { target: { defaultValue: '2020-05-25' } });
+
+  console.log(startDateBox);
+
+  expect(startDateBox).toHaveDisplayValue('2020-05-24');
 });

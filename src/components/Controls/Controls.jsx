@@ -1,7 +1,7 @@
 import React from 'react';
 import './Controls.css';
 
-export default function Controls({ startDate, endDate, handleSubmit }) {
+export default function Controls({ startDate, endDate, handleSubmit, handleDateValueUpdate }) {
   return (
     <>
       <div className="control-card">
