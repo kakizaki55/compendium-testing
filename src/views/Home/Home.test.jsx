@@ -1,4 +1,5 @@
-import { render, screen, waitForElementToBeRemoved } from '@testing-library/react';
+import { render, screen, waitForElementToBeRemoved, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -37,7 +38,7 @@ const server = setupServer(
 beforeAll(() => server.listen());
 afterAll(() => server.close());
 
-test.only('doing test to see if the data coming back actually renders picture cards and search boxes', async () => {
+test.skip('doing test to see if the data coming back actually renders picture cards and search boxes', async () => {
   render(<App />);
 
   await waitForElementToBeRemoved(() => screen.getByText(/loading/i));
@@ -57,4 +58,70 @@ test.only('doing test to see if the data coming back actually renders picture ca
   });
 
   expect(listOfPictures.children.length).toEqual(2);
+});
+
+const searchData = [
+  {
+    copyright: 'Petr Horalek',
+    date: '2021-01-01',
+    explanation:
+      "The South Celestial Pole is easy to spot in star trail images of the southern sky. The extension of Earth's axis of rotation to the south, it's at the center of all the southern star trail arcs. In this starry panorama streching about 60 degrees across deep southern skies the South Celestial Pole is somewhere near the middle though, flanked by bright galaxies and southern celestial gems. Across the top of the frame are the stars and nebulae along the plane of our own Milky Way Galaxy. Gamma Crucis, a yellowish giant star heads the Southern Cross near top center, with the dark expanse of the Coalsack nebula tucked under the cross arm on the left. Eta Carinae and the reddish glow of the Great Carina Nebula shine along the galactic plane near the right edge. At the bottom are the Large and Small Magellanic clouds, external galaxies in their own right and satellites of the mighty Milky Way. A line from Gamma Crucis through the blue star at the bottom of the southern cross, Alpha Crucis, points toward the South Celestial Pole, but where exactly is it? Just look for south pole star Sigma Octantis. Analog to Polaris the north pole star, Sigma Octantis is little over one degree fom the the South Celestial pole.",
+    hdurl: 'https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.png',
+    media_type: 'image',
+    service_version: 'v1',
+    title: 'Galaxies and the South Celestial Pole',
+    url: 'https://apod.nasa.gov/apod/image/2101/2020_12_16_Kujal_Jizni_Pol_1500px-3.jpg',
+  },
+  {
+    copyright: 'Mike Smolinsky',
+    date: '2021-01-02',
+    explanation:
+      "In the mid 19th century, one of the first photographic technologies used to record the lunar surface was the wet-plate collodion process, notably employed by British astronomer Warren De la Rue. To capture an image, a thick, transparent mixture was used to coat a glass plate, sensitized with silver nitrate, exposed at the telescope, and then developed to create a negative image on the plate. To maintain photographic sensitivity, the entire process, from coating to exposure to developing, had to be completed before the plate dried, in a span of about 10 to 15 minutes. This modern version of a wet-plate collodion image celebrates lunar photography's early days, reproducing the process using modern chemicals to coat a glass plate from a 21st century hardware store. Captured last November 28 with an 8x10 view camera and backyard telescope, it faithfully records large craters, bright rays, and dark, smooth mare of the waxing gibbous Moon. Subsequently digitized, the image on the plate was 8.5 centimeters in diameter and exposed while tracking for 2 minutes. The wet plate's effective photographic sensitivity was about ISO 1.  In your smart phone, the camera sensor probably has a photographic sensitivity range of ISO 100 to 6400 (and needs to be kept dry ...).",
+    hdurl: 'https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO.jpg',
+    media_type: 'image',
+    service_version: 'v1',
+    title: '21st Century Wet Collodion Moon',
+    url: 'https://apod.nasa.gov/apod/image/2101/WetCollodionLunar112820SMO_1024.jpg',
+  },
+  {
+    copyright: 'Hallgrimur P. Helgason Rollover Annotation: Judy Schmidt',
+    date: '2021-01-03',
+    explanation:
+      "All of the other aurora watchers had gone home. By 3:30 am in Iceland, on a quiet September night, much of that night's auroras had died down. Suddenly, unexpectedly, a new burst of particles streamed down from space, lighting up the Earth's atmosphere once again. This time, surprisingly, pareidoliacally, the night lit up with an  amazing shape reminiscent of a giant phoenix. With camera equipment at the ready, two quick sky images were taken, followed immediately by a third of the land.  The mountain in the background is Helgafell, while the small foreground river is called Kaldá, both located about 30 kilometers north of Iceland's capital Reykjavík. Seasoned skywatchers will note that just above the mountain, toward the left, is the constellation of Orion, while the Pleiades star cluster is also visible just above the frame center.  The 2016 aurora, which lasted only a minute and was soon gone forever --  would possibly be dismissed as an fanciful fable -- were it not captured in the featured, digitally-composed, image mosaic.    Almost Hyperspace: Random APOD Generator",
+    hdurl: 'https://apod.nasa.gov/apod/image/2101/PhoenixAurora_Helgason_3130.jpg',
+    media_type: 'image',
+    service_version: 'v1',
+    title: 'A Phoenix Aurora over Iceland',
+    url: 'https://apod.nasa.gov/apod/image/2101/PhoenixAurora_Helgason_960.jpg',
+  },
+];
+
+test('making sure the correct Api comes back when using the search feature', async () => {
+  server.use(
+    rest.get(
+      `https://api.nasa.gov/planetary/apod?api_key=${process.env.REACT_APP_NASA_KEY}&start_date=2021-01-01&end_date=2021-01-03`
+    ),
+    (req, res, ctx) => {
+      return res(ctx.json(searchData));
+    }
+  );
+  render(<App />);
+
+  await waitForElementToBeRemoved(() => screen.getByText(/loading../i));
+
+  const startDateBox = screen.getByLabelText(/start date:/i);
+  const endDateBox = screen.getByLabelText(/end date:/i);
+  const button = screen.getByRole('button');
+
+  userEvent.type(startDateBox, '2021-01-01');
+  userEvent.type(endDateBox, '2021-01-03');
+  userEvent.click(button);
+
+  jest.setTimeout(7000);
+  await waitFor(() => screen.getByText(/The South Celestial Pole/i), { timeout: 5000 });
+  screen.debug();
+
+  const listOfPictures = screen.getByRole('list');
+
+  expect(listOfPictures.children.length).toEqual(3);
 });

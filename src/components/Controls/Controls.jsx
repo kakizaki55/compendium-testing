@@ -1,7 +1,7 @@
 import React from 'react';
 import './Controls.css';
 
-export default function Controls({ handleSubmit }) {
+export default function Controls({ startDate, endDate, handleSubmit }) {
   return (
     <>
       <div className="control-card">
@@ -12,11 +12,11 @@ export default function Controls({ handleSubmit }) {
         >
           <label>
             <span>start date:</span>
-            <input type="date" min="2010-01-01" max="2021-12-31"></input>
+            <input defaultValue={startDate} type="date" min="2010-01-01" max="2021-12-31"></input>
           </label>
           <label>
             <span>end date:</span>
-            <input type="date" min="2010-01-01" max="2021-12-31"></input>
+            <input defaultValue={endDate} type="date" min="2010-01-01" max="2021-12-31"></input>
           </label>
           <button>Search</button>
         </form>

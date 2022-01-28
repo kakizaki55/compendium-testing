@@ -11,6 +11,7 @@ export const getPictureBySearch = async (startDate, endDate) => {
   const temp = await fetch(
     `https://api.nasa.gov/planetary/apod?api_key=${process.env.REACT_APP_NASA_KEY}&start_date=${startDate}&end_date=${endDate}`
   );
+  console.log('after search fetch');
   const response = await temp.json();
   return response;
 };
