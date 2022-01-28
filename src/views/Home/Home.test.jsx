@@ -101,7 +101,7 @@ const searchData = [
     url: 'https://apod.nasa.gov/apod/image/2101/PhoenixAurora_Helgason_960.jpg',
   },
 ];
-test('making sure the correct Api response comes back when using the search feature', async () => {
+test.skip('making sure the correct Api response comes back when using the search feature', async () => {
   server.use(
     rest.get('https://api.nasa.gov/planetary/apod', (req, res, ctx) => {
       const params = req.url.searchParams.get('start_date');
@@ -124,8 +124,8 @@ test('making sure the correct Api response comes back when using the search feat
   const endDateBox = screen.getByLabelText(/end date:/i);
   const button = screen.getByRole('button');
 
-  fireEvent.change(startDateBox, { target: { value: '2021-01-01' } });
-  fireEvent.change(endDateBox, { target: { value: '2021-01-03' } });
+  fireEvent.click(startDateBox, { target: { value: '2021-01-01' } });
+  fireEvent.click(endDateBox, { target: { value: '2021-01-03' } });
   screen.debug();
 
   userEvent.click(button);
@@ -140,7 +140,7 @@ test('making sure the correct Api response comes back when using the search feat
   expect(listOfPictures.children.length).toEqual(3);
 });
 
-test.only('making sure the afire event is wokrin g rpoperly', async () => {
+test('making sure the a fireEvent is wokrin g rpoperly', async () => {
   render(<App />);
 
   await waitForElementToBeRemoved(() => screen.getByText(/loading../i));
@@ -148,10 +148,11 @@ test.only('making sure the afire event is wokrin g rpoperly', async () => {
   const startDateBox = screen.getByLabelText(/start date:/i);
   const endDateBox = screen.getByLabelText(/end date:/i);
 
-  fireEvent.change(startDateBox, { target: { defaultValue: '2020-05-24' } });
-  fireEvent.change(endDateBox, { target: { defaultValue: '2020-05-25' } });
+  fireEvent.click(startDateBox, { target: { defaultValue: '2020-05-24' } });
+  fireEvent.click(endDateBox, { target: { defaultValue: '2020-05-25' } });
 
   console.log(startDateBox);
 
   expect(startDateBox).toHaveDisplayValue('2020-05-24');
+  expect(endDateBox).toHaveDisplayValue('2020-05-25');
 });
