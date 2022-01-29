@@ -1,0 +1,16 @@
+.picture-card {
+  width: 290px;
+  height: 290px;
+}
+.nasa-card {
+  width: 300px;
+  padding: 20px;
+  border: white solid 2px;
+  margin: 10px;
+}
+.nasa-list {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  padding: 200px;
+}
