@@ -98,7 +98,7 @@ test('making sure the correct Api response comes back when using the search feat
   server.use(
     rest.get('https://api.nasa.gov/planetary/apod', (req, res, ctx) => {
       const params = req.url.searchParams.get('start_date');
-      console.log(req.url.toString());
+      // console.log(req.url.toString());
       if (params) {
         return res(ctx.json(searchData));
       } else {
