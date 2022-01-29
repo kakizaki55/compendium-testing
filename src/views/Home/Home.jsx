@@ -7,35 +7,29 @@ import Controls from '../../components/Controls/Controls';
 export default function Home() {
   const [nasaData, setNasaData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [dates, setDates] = useState();
+  const [tempStartDate, setTempStartDate] = useState();
+  const [tempEndDate, setTempEndDate] = useState();
 
   useEffect(() => {
     const fetchdata = async () => {
-      try {
-        if (startDate && endDate) {
-          const resp = await getPictureBySearch(startDate, endDate);
-          const data = resp;
-          setNasaData(data);
-        } else {
-          const resp = await getPictureOfTheDay();
-          const data = resp;
-          setNasaData(data);
-        }
-        setLoading(false);
-      } catch {
-        setLoading(false);
+      if (dates) {
+        const resp = await getPictureBySearch(dates);
+        const data = resp;
+        setNasaData(data);
+      } else {
+        const resp = await getPictureOfTheDay();
+        const data = resp;
+        setNasaData(data);
       }
+      setLoading(false);
     };
     fetchdata();
-  }, [startDate, endDate]);
+  }, [dates]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = () => {
     setLoading(true);
-    e.preventDefault();
-
-    setStartDate(e.target[0]?.value);
-    setEndDate(e.target[1]?.value);
+    setDates({ start: tempStartDate, end: tempEndDate });
   };
 
   return (
@@ -46,7 +40,13 @@ export default function Home() {
         </>
       ) : (
         <>
-          <Controls startDate={startDate} endDate={endDate} handleSubmit={handleSubmit}></Controls>
+          <Controls
+            startDate={tempStartDate}
+            endDate={tempEndDate}
+            handleSubmit={handleSubmit}
+            setTempStartDate={setTempStartDate}
+            setTempEndDate={setTempEndDate}
+          ></Controls>
           <NasaCard nasaData={nasaData}></NasaCard>
         </>
       )}

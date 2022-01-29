@@ -31,19 +31,13 @@ const data = [
 
 const server = setupServer(
   rest.get('https://api.nasa.gov/planetary/apod', (req, res, ctx) => {
-    // const startdate = req.url.serachParams.get('start_date');
-    // const enddate = req.url.searchParams.get('end_date');
-    // if (startdate === '2021-01-01' && enddate === '2021-01-03') {
-    //   return res(ctx.json(searchData));
-    // } else {
     return res(ctx.json(data));
-    // }
   })
 );
 
 beforeAll(() => server.listen());
 afterAll(() => server.close());
-jest.setTimeout(10000);
+
 test('doing test to see if the data coming back actually renders picture cards and search boxes', async () => {
   render(<App />);
 
@@ -56,8 +50,6 @@ test('doing test to see if the data coming back actually renders picture cards a
   expect(startDateBox).toBeInTheDocument();
   expect(endDateBox).toBeInTheDocument();
   expect(button).toBeInTheDocument();
-
-  screen.debug();
 
   const listOfPictures = screen.getByRole('list', {
     name: /nasa-list/i,
@@ -101,14 +93,12 @@ const searchData = [
     url: 'https://apod.nasa.gov/apod/image/2101/PhoenixAurora_Helgason_960.jpg',
   },
 ];
-test.skip('making sure the correct Api response comes back when using the search feature', async () => {
+test('making sure the correct Api response comes back when using the search feature', async () => {
+  render(<App />);
   server.use(
     rest.get('https://api.nasa.gov/planetary/apod', (req, res, ctx) => {
       const params = req.url.searchParams.get('start_date');
-      const params2 = req.url.searchParams.get('end_date');
-      console.log(params);
-      console.log(params2);
-      if (params && params2) {
+      if (params) {
         return res(ctx.json(searchData));
       } else {
         return res(ctx.json(data));
@@ -116,31 +106,25 @@ test.skip('making sure the correct Api response comes back when using the search
     })
   );
 
-  render(<App />);
-
   await waitForElementToBeRemoved(() => screen.getByText(/loading../i));
 
-  const startDateBox = screen.getByLabelText(/start date:/i);
+  const startDateBox = await screen.findByLabelText(/start date:/i);
   const endDateBox = screen.getByLabelText(/end date:/i);
   const button = screen.getByRole('button');
 
   fireEvent.click(startDateBox, { target: { value: '2021-01-01' } });
   fireEvent.click(endDateBox, { target: { value: '2021-01-03' } });
-  screen.debug();
 
   userEvent.click(button);
-
-  jest.setTimeout(5000);
 
   await waitForElementToBeRemoved(() => screen.getByText(/loading../i));
 
   const listOfPictures = screen.getByRole('list');
-  screen.debug();
 
   expect(listOfPictures.children.length).toEqual(3);
 });
 
-test('making sure the a fireEvent is wokrin g rpoperly', async () => {
+test('making sure the a fireEvent is wokring properly', async () => {
   render(<App />);
 
   await waitForElementToBeRemoved(() => screen.getByText(/loading../i));
@@ -150,8 +134,6 @@ test('making sure the a fireEvent is wokrin g rpoperly', async () => {
 
   fireEvent.click(startDateBox, { target: { defaultValue: '2020-05-24' } });
   fireEvent.click(endDateBox, { target: { defaultValue: '2020-05-25' } });
-
-  console.log(startDateBox);
 
   expect(startDateBox).toHaveDisplayValue('2020-05-24');
   expect(endDateBox).toHaveDisplayValue('2020-05-25');
