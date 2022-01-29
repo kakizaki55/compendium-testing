@@ -98,6 +98,7 @@ test('making sure the correct Api response comes back when using the search feat
   server.use(
     rest.get('https://api.nasa.gov/planetary/apod', (req, res, ctx) => {
       const params = req.url.searchParams.get('start_date');
+      console.log(req.url.toString());
       if (params) {
         return res(ctx.json(searchData));
       } else {
@@ -112,8 +113,8 @@ test('making sure the correct Api response comes back when using the search feat
   const endDateBox = screen.getByLabelText(/end date:/i);
   const button = screen.getByRole('button');
 
-  fireEvent.click(startDateBox, { target: { value: '2021-01-01' } });
-  fireEvent.click(endDateBox, { target: { value: '2021-01-03' } });
+  fireEvent.change(startDateBox, { target: { value: '2021-01-01' } });
+  fireEvent.change(endDateBox, { target: { value: '2021-01-03' } });
 
   userEvent.click(button);
 
